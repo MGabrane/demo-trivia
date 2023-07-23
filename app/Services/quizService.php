@@ -11,6 +11,7 @@ class QuizService {
     private const MIN_QUIZ_NUMBER = 1;
     private const MAX_QUIZ_NUMBER = 1000;
     private const ANSWER_OPTION_COUNT = 4;
+    public const QUESTIONS_COUNT = 20;
 
     public function setupQuestion(Request $request) {
 
@@ -90,21 +91,21 @@ class QuizService {
         $previousNumbers = $request->session()->get('previousNumbers') ?? [];
         $correctAnswerCount = count($previousNumbers);
 
-        if($answer == $correctAnswer && $correctAnswerCount > 19) {
+        if($answer == $correctAnswer) {
+            $correctAnswerCount++;
+            LOG::info($correctAnswerCount);
+        }
+
+        if(($answer == $correctAnswer && $correctAnswerCount === self::QUESTIONS_COUNT) || $answer != $correctAnswer) {
             $request->session()->flush();
             $request->session()->put('correctAnswerCount', $correctAnswerCount);
-            return 'finished';
-        } elseif($answer != $correctAnswer) {
-            $request->session()->flush();
-            $request->session()->put('correctAnswerCount', $correctAnswerCount);
-            return 'failed';
+            return 'finish';
         }
 
         $previousNumbers[] = $correctAnswer;
         $request->session()->put('previousNumbers', $previousNumbers);
         $request->session()->forget('currentNumber');
-        return 'successful';
-
+        return 'success';
     }
 
 }

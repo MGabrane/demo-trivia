@@ -9,7 +9,6 @@ use \Exception;
 
 class QuizController extends Controller
 {
-
     public function __construct(private QuizService $quizService) {}
 
     public function playQuiz(Request $request)
@@ -28,12 +27,24 @@ class QuizController extends Controller
 
         $answerStatus = $this->quizService->answerQuestion($request);
 
-        if($answerStatus === 'finished') {
-            return redirect()->route('successQuiz');
-        } elseif($answerStatus === 'failed') {
-            return redirect()->route('failQuiz');
+        if($answerStatus === 'finish') {
+            return redirect()->route('quizSummary');
         }
 
         return redirect()->route('playQuiz');
+    }
+
+    public function quizSummary(Request $request) {
+        if(!$request->session()->has('correctAnswerCount')) {
+            return redirect()->route('playQuiz');
+        }
+
+        $correctAnswerCount = $request->session()->get('correctAnswerCount');
+
+        if($correctAnswerCount < $this->quizService::QUESTIONS_COUNT) {
+            return view('fail', ['correctAnswersCount' => $correctAnswerCount, 'questionCount' => $this->quizService::QUESTIONS_COUNT]);
+        }
+
+        return view('success');
     }
 }
