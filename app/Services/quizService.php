@@ -95,7 +95,6 @@ class QuizService {
 
         if($answer == $correctAnswer) {
             $correctAnswerCount++;
-            LOG::info($correctAnswerCount);
         }
 
         if(($answer == $correctAnswer && $correctAnswerCount === self::QUESTIONS_COUNT) || $answer != $correctAnswer) {
