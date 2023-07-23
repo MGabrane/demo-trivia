@@ -22,16 +22,73 @@ header {
 
 .btn {
     padding: 10px 25px;
+    color: #333;
+    background-color: transparent;
     border: 1px solid #333;
     border-radius: 5px;
-    color: #333;
     text-decoration: none;
+    cursor: pointer;
+    transition: background-color linear .3s;
+}
+
+.btn:hover {
+    background-color: #e9e5e5;
 }
 
 /*
-    Home page styling
+    Page styling
 */
-.home-page-content, .something-wrong-page-content {
+.home-page-content, .something-wrong-page-content, .success-content {
     text-align: center;
 }
 
+.fail-content, .quiz-page-content {
+    max-width: 600px;
+    margin: auto;
+}
+
+.fail-content a, .success-content a, .quiz-page-content .btn {
+    display: block;
+    margin-top: 20px;
+    width: fit-content;
+}
+
+.success-content a {
+    margin: 20px auto 0;
+}
+
+/*
+    Quiz form styling
+*/
+.quiz-form .input-wrapper {
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 10px;
+}
+
+.quiz-form input {
+    display: none;
+}
+
+.quiz-form label {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.quiz-form label::before {
+    content: '';
+    position: absolute;
+    display: block;
+    width: 20px;
+    height: 20px;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    margin: auto;
+    border: 1px solid #333;
+    border-radius: 50%;
+}
+
+.quiz-form input:checked + label::before {
+    background-color: #333;
+}

@@ -3,13 +3,15 @@
 @section('content')
     <div class="quiz-page-content">
         <p><b>{{ $quizQuestion }}</b></p>
-        <form action="{{ route('answerQuiz') }}" method="POST">
+        <form class="quiz-form" action="{{ route('answerQuiz') }}" method="POST">
             @csrf
             @foreach ($randomNumbers as $number)
-                <input type="radio" id="number-{{ $number }}" name="quiz_answer" value="{{ $number }}" required>
-                <label for="number-{{ $number }}">{{ $number }}</label><br>
+                <div class="input-wrapper">
+                    <input type="radio" id="number-{{ $number }}" name="quiz_answer" value="{{ $number }}" required>
+                    <label for="number-{{ $number }}">{{ $number }}</label>
+                </div>
             @endforeach
-            <button type="submit">{{ __('Submit'); }}</button>
+            <button class="btn" type="submit">{{ __('Submit'); }}</button>
         </form>
     </div>
 @endsection

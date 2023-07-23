@@ -1,6 +1,8 @@
 @extends('layouts.main')
 
 @section('content')
-    <h2>{{ __('Congratulation, you answered all questions!'); }}</h2>
-    @include('partials.play-quiz-btn')
+    <div class="success-content">
+        <h2>{{ __('Congratulation, you answered all questions!'); }}</h2>
+        @include('partials.play-quiz-btn')
+    </div>
 @endsection
