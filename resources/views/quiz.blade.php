@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="quiz-page-content">
-        <p><i>Replace ??? with one of the numbers</i></p>
+        <p><i>{{ __('Replace ??? with one of the numbers'); }}</i></p>
         <p><b>{{ $triviaQuestion }}</b></p>
     
         <form method="POST">

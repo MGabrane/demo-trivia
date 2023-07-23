@@ -11,6 +11,7 @@ body {
 
 header {
     text-align: center;
+    margin-bottom: 40px;
 }
 
 .container {
@@ -30,8 +31,7 @@ header {
 /*
     Home page styling
 */
-.home-page-content {
+.home-page-content, .something-wrong-page-content {
     text-align: center;
-    margin-top: 40px;
 }
 

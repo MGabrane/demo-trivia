@@ -17,6 +17,10 @@ class QuizController extends Controller
 
         $questionData = $this->quizService->setupQuestion($previousNumbers);
 
+        if(!$questionData) {
+            return view('something-wrong');
+        }
+
         $quizNumbers = $previousNumbers;
         $quizNumbers[] = $questionData['number'];
         $request->session()->put('quizNumbers', $quizNumbers);
