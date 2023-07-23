@@ -19,7 +19,7 @@ class QuizService {
 
         $answerOptions = $this->generateOptions($questionData['number']);
 
-        // Return false if there are problems, or necessery data for view
+        // Return false if there are problems, or necessary data for view
         $setupQuestionData = [
             'number' => $questionData['number'],
             'text' => str_replace($questionData['number'], '???', $questionData['text']),

@@ -13,7 +13,11 @@ class QuizController extends Controller
 
     public function playQuiz(Request $request)
     {
-        if($request->session()->get('currentNumber')) {
+        if($request->session()->has('correctAnswerCount')) {
+            $request->session()->forget('correctAnswerCount');
+        }
+
+        if($request->session()->has('currentNumber')) {
             $question = $request->session()->get('currentQuestion') ?? '';
             $answerOptions = $request->session()->get('answerOptions') ?? [];
         } else {
@@ -33,7 +37,29 @@ class QuizController extends Controller
             $request->session()->put('answerOptions', $answerOptions);
         }
 
-
         return view('quiz', ['randomNumbers' => $answerOptions, 'triviaQuestion' => $question]);
+    }
+
+    public function answerQuiz(Request $request) {
+        $answer = $request['quiz_answer'];
+        $correctAnswer = $request->session()->get('currentNumber');
+        $previousNumbers = $request->session()->get('previousNumbers') ?? [];
+        $correctAnswerCount = count($previousNumbers);
+
+        if($answer == $correctAnswer && $correctAnswerCount == 19) {
+            $request->session()->flush();
+            $request->session()->put('correctAnswerCount', $correctAnswerCount);
+            return redirect()->route('successQuiz');
+        } elseif($answer != $correctAnswer) {
+            $request->session()->flush();
+            $request->session()->put('correctAnswerCount', $correctAnswerCount);
+            return redirect()->route('failQuiz');
+        } else {
+            $previousNumbers[] = $correctAnswer;
+            $request->session()->put('previousNumbers', $previousNumbers);
+            $request->session()->forget('currentNumber');
+        }
+
+        return redirect()->route('playQuiz');
     }
 }

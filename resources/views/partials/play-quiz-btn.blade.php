@@ -1,0 +1,1 @@
+<a class="btn" href="{{ url('/quiz') }}">{{ __('Play Quiz'); }}</a>

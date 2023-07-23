@@ -2,6 +2,6 @@
 
 @section('content')
     <div class="home-page-content">
-        <a class="btn" href="{{ url('/quiz') }}">{{ __('Play Quiz'); }}</a>
+        @include('partials.play-quiz-btn')
     </div>
 @endsection
