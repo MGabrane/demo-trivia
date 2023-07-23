@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Services;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use \Exception;
@@ -9,39 +10,53 @@ class QuizService {
 
     private const MIN_QUIZ_NUMBER = 1;
     private const MAX_QUIZ_NUMBER = 1000;
+    private const ANSWER_OPTION_COUNT = 4;
 
-    public function setupQuestion($quizNumbers) {
-        $questionData = $this->getQuizData($quizNumbers);
+    public function setupQuestion(Request $request) {
 
-        if(!$questionData) {
-            return false;
+        // Forget correctAnswerCount
+        if($request->session()->has('correctAnswerCount')) {
+            $request->session()->forget('correctAnswerCount');
         }
 
-        $answerOptions = $this->generateOptions($questionData['number']);
+        // Initialize new question if necessary
+        if(!$request->session()->has('currentNumber')) {
+            $this->initializeNextQuestion($request);
+        }
 
-        // Return false if there are problems, or necessary data for view
-        $setupQuestionData = [
-            'number' => $questionData['number'],
-            'text' => str_replace($questionData['number'], '???', $questionData['text']),
-            'answer_options' => $answerOptions
+        $question = $request->session()->get('currentQuestion') ?? '';
+        $answerOptions = $request->session()->get('answerOptions') ?? [];
+
+        $questionData = [
+            'question' => $question,
+            'answerOptions' => $answerOptions
         ];
 
-        return $setupQuestionData;
+        return $questionData;
+    }
+
+    private function initializeNextQuestion(Request $request) {
+        $previousNumbers = $request->session()->get('previousNumbers') ?? [];
+
+        $questionData = $this->getQuizData($previousNumbers);
+        $question = str_replace($questionData['number'], '___', $questionData['text']);
+        $answerOptions = $this->generateOptions($questionData['number']);
+
+        $request->session()->put('currentNumber', $questionData['number']);
+        $request->session()->put('currentQuestion', $question);
+        $request->session()->put('answerOptions', $answerOptions);
     }
 
     private function getQuizData($quizNumbers) {
         $alreadyHasThisNumber = false;
         while(!$alreadyHasThisNumber) {
-            $randomNumber = $this->generateNumber($quizNumbers);
-            try {
-                $response = Http::get(config('services.numbers_api.url') . '/' . $randomNumber .'/trivia?json&notfound=floor');
-            } catch (Exception $e) {
-                LOG::error($e->getMessage());
-                return false;
-            }
+            $randomNumber = $this->generateNumberNotIn($quizNumbers);
+
+            $response = Http::get(config('services.numbers_api.url') . '/' . $randomNumber .'/trivia?json&notfound=floor');
 
             if($response->status() != 200) {
-                return false;
+                LOG::error('API request status code ' . $response->status());
+                throw new Exception('API did not return success.');
             }
 
             $quizData = $response->json();
@@ -57,15 +72,39 @@ class QuizService {
     private function generateOptions($quizNumber) {
         $options = [];
         $options[] = $quizNumber;
-        for($i = 0; $i < 3; $i++) {
-            $options[] = $this->generateNumber($options);
+        while(count($options) < self::ANSWER_OPTION_COUNT) {
+            $options[] = $this->generateNumberNotIn($options);
         }
         return $options;
     }
 
-    private function generateNumber($quizNumbers) {
+    private function generateNumberNotIn($quizNumbers) {
         while(in_array(($number = mt_rand(self::MIN_QUIZ_NUMBER, self::MAX_QUIZ_NUMBER)), $quizNumbers));
         return $number;
+    }
+
+    public function answerQuestion(Request $request) {
+        $answer = $request['quiz_answer'];
+
+        $correctAnswer = $request->session()->get('currentNumber');
+        $previousNumbers = $request->session()->get('previousNumbers') ?? [];
+        $correctAnswerCount = count($previousNumbers);
+
+        if($answer == $correctAnswer && $correctAnswerCount > 19) {
+            $request->session()->flush();
+            $request->session()->put('correctAnswerCount', $correctAnswerCount);
+            return 'finished';
+        } elseif($answer != $correctAnswer) {
+            $request->session()->flush();
+            $request->session()->put('correctAnswerCount', $correctAnswerCount);
+            return 'failed';
+        }
+
+        $previousNumbers[] = $correctAnswer;
+        $request->session()->put('previousNumbers', $previousNumbers);
+        $request->session()->forget('currentNumber');
+        return 'successful';
+
     }
 
 }
