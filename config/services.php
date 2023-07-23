@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'numbers_api' => [
+        'url' => env('NUMBERS_API_URL', null)
+    ]
+
 ];
