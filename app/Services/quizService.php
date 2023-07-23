@@ -19,6 +19,7 @@ class QuizService {
         // Forget correctAnswerCount
         if($request->session()->has('correctAnswerCount')) {
             $request->session()->forget('correctAnswerCount');
+            $request->session()->forget('correctAnswer');
         }
 
         // Initialize new question if necessary
@@ -98,7 +99,12 @@ class QuizService {
         }
 
         if(($answer == $correctAnswer && $correctAnswerCount === self::QUESTIONS_COUNT) || $answer != $correctAnswer) {
+            $question = $request->session()->get('currentQuestion');
+            $correctAnswerText = str_replace('___', $correctAnswer, $question);
+
             $request->session()->flush();
+
+            $request->session()->put('correctAnswer', $correctAnswerText);
             $request->session()->put('correctAnswerCount', $correctAnswerCount);
             return 'finish';
         }

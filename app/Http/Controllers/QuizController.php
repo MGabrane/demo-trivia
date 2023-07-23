@@ -42,7 +42,8 @@ class QuizController extends Controller
         $correctAnswerCount = $request->session()->get('correctAnswerCount');
 
         if($correctAnswerCount < $this->quizService::QUESTIONS_COUNT) {
-            return view('fail', ['correctAnswersCount' => $correctAnswerCount, 'questionCount' => $this->quizService::QUESTIONS_COUNT]);
+            $correctAnswer = $request->session()->get('correctAnswer');
+            return view('fail', ['correctAnswer' => $correctAnswer, 'correctAnswersCount' => $correctAnswerCount, 'questionCount' => $this->quizService::QUESTIONS_COUNT]);
         }
 
         return view('success');
