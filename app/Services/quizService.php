@@ -4,6 +4,7 @@ namespace App\Services;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Arr;
 use \Exception;
 
 class QuizService {
@@ -76,7 +77,8 @@ class QuizService {
         while(count($options) < self::ANSWER_OPTION_COUNT) {
             $options[] = $this->generateNumberNotIn($options);
         }
-        return $options;
+
+        return Arr::shuffle($options);
     }
 
     private function generateNumberNotIn($quizNumbers) {
