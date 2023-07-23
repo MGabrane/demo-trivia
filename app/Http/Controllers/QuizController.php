@@ -20,7 +20,7 @@ class QuizController extends Controller
             return view('something-wrong');
         }
 
-        return view('quiz', ['randomNumbers' => $questionData['answerOptions'], 'triviaQuestion' => $questionData['question']]);
+        return view('quiz', ['randomNumbers' => $questionData['answerOptions'], 'quizQuestion' => $questionData['question']]);
     }
 
     public function answerQuiz(Request $request) {
