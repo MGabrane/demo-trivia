@@ -13,19 +13,27 @@ class QuizController extends Controller
 
     public function playQuiz(Request $request)
     {
-        $previousNumbers = $request->session()->get('quizNumbers') ?? [];
+        if($request->session()->get('currentNumber')) {
+            $question = $request->session()->get('currentQuestion') ?? '';
+            $answerOptions = $request->session()->get('answerOptions') ?? [];
+        } else {
+            $previousNumbers = $request->session()->get('previousNumbers') ?? [];
+            $questionData = $this->quizService->setupQuestion($previousNumbers);
 
-        $questionData = $this->quizService->setupQuestion($previousNumbers);
+            if(!$questionData) {
+                return view('something-wrong');
+            }
 
-        if(!$questionData) {
-            return view('something-wrong');
+            $currentNumber = $questionData['number'];
+            $question = $questionData['text'];
+            $answerOptions = $questionData['answer_options'];
+
+            $request->session()->put('currentNumber', $currentNumber);
+            $request->session()->put('currentQuestion', $question);
+            $request->session()->put('answerOptions', $answerOptions);
         }
 
-        $quizNumbers = $previousNumbers;
-        $quizNumbers[] = $questionData['number'];
-        $request->session()->put('quizNumbers', $quizNumbers);
-        $request->session()->put('answerOptions', $questionData['answer_options']);
 
-        return view('quiz', ['randomNumbers' => $questionData['answer_options'], 'triviaQuestion' => $questionData['text']]);
+        return view('quiz', ['randomNumbers' => $answerOptions, 'triviaQuestion' => $question]);
     }
 }
